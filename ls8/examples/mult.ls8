@@ -1,3 +1,5 @@
+# mult.ls8: Multiply 8x9 and print 72
+
 10000010 # LDI R0,8
 00000000
 00001000

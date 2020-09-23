@@ -9,11 +9,11 @@ HLT = 0b00000001
 MUL = 0b10100010
 PUSH = 0b01000101
 POP = 0b01000110
-# SPRINT ADDITION BELOW
-CMP = 0b10100111 # ALU OP
-JMP = 0b01010100 # PC MUTATOR
-JEQ = 0b01010101 # PC MUTATOR
-JNE = 0b01010110 # PC MUTATOR
+# Sprint stuff below
+CMP = 0b10100111 
+JMP = 0b01010100 
+JEQ = 0b01010101 
+JNE = 0b01010110 
 
 class CPU:
     """Main CPU class."""
@@ -23,7 +23,7 @@ class CPU:
         
         self.ram = [0] * 256
         self.registers = [0] * 8
-        self.registers[SP] = 0xF4 # stack pointer
+        self.registers[SP] = 0xF4 
         self.pc = 0
         self.flag = 0B00000000
     
@@ -67,11 +67,11 @@ class CPU:
         # SPRINT CMP
         elif op == "CMP":
             if self.registers[reg_a] < self.registers[reg_b]:
-                self.flag = 0b00000100 # less than flag
+                self.flag = 0b00000100 
             if self.registers[reg_a] > self.registers[reg_b]:
-                self.flag = 0b00000010 # greater than flag
+                self.flag = 0b00000010 
             if self.registers[reg_a] == self.registers[reg_b]:
-                self.flag = 0b00000001 # equal flag
+                self.flag = 0b00000001 
 
         else:
             raise Exception("Unsupported ALU operation")
@@ -84,8 +84,6 @@ class CPU:
 
         print(f"TRACE: %02X | %02X %02X %02X |" % (
             self.pc,
-            #self.fl,
-            #self.ie,
             self.ram_read(self.pc),
             self.ram_read(self.pc + 1),
             self.ram_read(self.pc + 2)
@@ -100,12 +98,12 @@ class CPU:
         """Run the CPU."""
         self.running = True
         while self.running:
-            instruction = self.ram_read(self.pc)  # Instruction register, copy of the currently-executing instruction
+            instruction = self.ram_read(self.pc)  
 
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
 
-            if instruction == HLT: # HLT - halt the CPU and exit the emulator.
+            if instruction == HLT:
                 self.running = False
                 self.pc += 1
 
@@ -124,55 +122,42 @@ class CPU:
                 self.pc +=3
 
             elif instruction == PUSH:
-                # Decrement Stack Pointer(SP)
                 self.registers[SP] -= 1
 
-                # Get the reg num to push
                 register_num = self.ram_read(self.pc + 1)
 
-                # Get the value to push
                 value = self.registers[register_num]
 
-                # Copy the value to the SP address
                 top_of_stack_addr = self.registers[SP]
                 self.ram[top_of_stack_addr] = value
 
-                # increment program counter to put program back on track
                 self.pc += 2
 
             elif instruction == POP:
 
-                # Get reg to pop into
                 register_num = self.ram_read(self.pc + 1)
 
-                # Get the top of stack addr
                 top_of_stack_addr = self.registers[SP]
 
-		        # Get the value at the top of the stack
                 value = self.ram_read(top_of_stack_addr)
 
-		        # Store the value in the register
                 self.registers[register_num] = value
 
-		        # Increment the SP
                 self.registers[SP] += 1
 
-                # increment program counter to put program back on track
                 self.pc += 2
 
-            elif instruction == CMP: # Compare the values in two registers.
+
+            elif instruction == CMP: 
                 op_a = self.ram_read(self.pc + 1)
                 op_b = self.ram_read(self.pc + 2)
                 self.alu("CMP", op_a, op_b)
                 self.pc += 3
 
             elif instruction == JMP:
-                # get address from register
                 reg_num = self.ram_read(self.pc + 1)
-                # set pc to address
                 self.pc = self.registers[reg_num]
 
-            # If equal flag is set (true), jump to the address in the given register.
             elif instruction == JEQ:
                 if self.flag == 0b00000001:
                     reg_num = self.ram_read(self.pc + 1)
@@ -180,7 +165,6 @@ class CPU:
                 else:
                     self.pc += 2
 
-            # If E flag is clear (false, 0), jump to the address in the given register.
             elif instruction == JNE:
                 if self.flag != 0b00000001:
                     reg_num = self.ram_read(self.pc + 1)
